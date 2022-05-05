@@ -22,11 +22,6 @@ public class ReportController {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @GetMapping
-    public List<Employee> getEmployees() {
-        return this.employeeRepository.findAll();
-    }
-
     @GetMapping("/report/{type}")
     public String generateReport(@PathVariable String type) {
         try {
