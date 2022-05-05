@@ -6,6 +6,7 @@ import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -17,7 +18,8 @@ import java.util.Map;
 
 @Service
 public class ReportService {
-    private static final String FOLDER_CONTAINER = "YOUR_PATH";
+    @Value("${jasper.path}")
+    private String folder;
     @Autowired
     private EmployeeRepository employeeRepository;
 
@@ -33,12 +35,12 @@ public class ReportService {
         JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, map, dataSource);
 
         if (reportFormat.equalsIgnoreCase("html")) {
-            JasperExportManager.exportReportToHtmlFile(jasperPrint, FOLDER_CONTAINER + "\\employees.html");
+            JasperExportManager.exportReportToHtmlFile(jasperPrint, this.folder + "\\employees.html");
         }
         if (reportFormat.equalsIgnoreCase("pdf")) {
-            JasperExportManager.exportReportToPdfFile(jasperPrint, FOLDER_CONTAINER + "\\employees.pdf");
+            JasperExportManager.exportReportToPdfFile(jasperPrint, this.folder + "\\employees.pdf");
         }
 
-        return "report generated in path: " + FOLDER_CONTAINER;
+        return "report generated in path: " + this.folder;
     }
 }
