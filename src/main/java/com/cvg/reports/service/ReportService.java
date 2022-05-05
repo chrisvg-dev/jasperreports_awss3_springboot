@@ -12,18 +12,21 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class ReportService {
+    private static final String ALLOWED_FORMATS[] = {"PDF", "HTML", "XML"};
     @Value("${jasper.path}")
     private String folder;
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    public String exportReport(String reportFormat) throws FileNotFoundException, JRException {
+        public File exportReport(String reportFormat) throws FileNotFoundException, JRException {
+        File newReport = null;
         List<Employee> employees = this.employeeRepository.findAll();
         File file = ResourceUtils.getFile("classpath:employees.jrxml");
 
@@ -33,14 +36,23 @@ public class ReportService {
         Map<String, Object> map = new HashMap<>();
         map.put("createdBy", "CRISTHIAN VILLEGAS");
         JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, map, dataSource);
+        String fullPathFile = this.folder + "\\employees" + reportFormat.toLowerCase();
 
-        if (reportFormat.equalsIgnoreCase("html")) {
-            JasperExportManager.exportReportToHtmlFile(jasperPrint, this.folder + "\\employees.html");
+        if ( Arrays.asList( ALLOWED_FORMATS ).contains(reportFormat) ) {
+            switch (reportFormat){
+                case "PDF":
+                    JasperExportManager.exportReportToPdfFile(jasperPrint, fullPathFile);
+                    break;
+                case "HTML":
+                    JasperExportManager.exportReportToHtmlFile(jasperPrint, fullPathFile);
+                    break;
+            }
+            newReport = new File(fullPathFile);
+            System.out.println("report generated in path: " + this.folder);
+        } else {
+            newReport = null;
+            System.out.println("El formato seleccionado no es aceptado...");
         }
-        if (reportFormat.equalsIgnoreCase("pdf")) {
-            JasperExportManager.exportReportToPdfFile(jasperPrint, this.folder + "\\employees.pdf");
-        }
-
-        return "report generated in path: " + this.folder;
+        return newReport;
     }
 }

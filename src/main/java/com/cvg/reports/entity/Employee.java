@@ -21,5 +21,4 @@ public class Employee {
     private String designation;
     private Double salary;
     private String doj;
-
 }
